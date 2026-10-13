@@ -17,7 +17,33 @@
   curl -4 -fsS --max-time 10 https://api.ipify.org
 
   ```
+---
 
+## Incident Resolution Report: INC-4522
+
+### 1. Incident Overview
+* **Incident ID**: INC-4522
+* **Environment**: Google Cloud Platform (`vpc-networking-lab-cf870758`)
+* **Affected Nodes**:
+  * API Server: `vm-api-cf870758` (`10.0.2.2`)
+  * Database Server: `vm-database-cf870758` (`10.0.3.2`)
+* **Status**: Resolved & Verified
+
+---
+
+### 2. Issue Description
+The Flask API hosted on `vm-api-cf870758` was unable to communicate with the PostgreSQL database server (`db.internal.test`) on TCP port `5432`. Troubleshooting identified two independent root causes: private DNS resolution failure and an overly restrictive VPC firewall rule.
+
+---
+
+### 3. Root Cause & Remediation Steps
+
+#### Step A: Private DNS Resolution
+* **Problem**: Executing `dig @169.254.169.254 +short db.internal.test` returned `NXDOMAIN`.
+* **Root Cause**: The Cloud DNS Managed Zone (`internal-test-cf870758`) was bound to the default network rather than the custom VPC network `vpc-networking-lab-cf870758`.
+* **Fix**:
+  ```bash
+  gcloud dns managed-zones update internal-test-cf870758 \
 - **Symptom:** Requests timed out with `curl: (28) Failed to connect to api.ipify.org port 443 after 8753 ms: Connection timed out`.
 
 
