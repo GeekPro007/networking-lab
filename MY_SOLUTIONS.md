@@ -31,3 +31,16 @@ Associated the Private DNS Managed Zone with the target VPC network:
 ```bash
 gcloud dns managed-zones update <ZONE_NAME> \
     --networks=vpc-networking-lab-8183452c
+
+## INC-4524: Security Audit & Compliance (Overly Permissive Firewall Rules)
+
+### Issue
+Security audit flagged overly permissive ingress firewall rules allowing direct external SSH access (`tcp:22` from `0.0.0.0/0`) to private backend and frontend instances (`allow-ssh-api`, `allow-ssh-db`, `allow-ssh-web`).
+
+### Root Cause
+Default or misconfigured firewall rules allowed unrestricted inbound SSH traffic across individual instances instead of routing administrative access strictly through a secure bastion host or internal management network.
+
+### Resolution
+Deleted the non-compliant direct SSH firewall rules:
+```bash
+gcloud compute firewall-rules delete allow-ssh-api-8183452c allow-ssh-db-8183452c allow-ssh-web-8183452c --quiet
