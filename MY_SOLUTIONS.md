@@ -17,3 +17,17 @@ gcloud compute routers nats update nat-8183452c \n    --router=router-8183452c \
 Ran diagnostic curl requests from the API server:
 - curl -4 --noproxy '*' -sS -o /dev/null -w '%{http_code}\n' --max-time 10 https://example.com (Returned HTTP 200)
 - curl -4 --noproxy '*' -fsS --max-time 10 https://api.ipify.org (Returned egress IP 34.41.17.0)
+
+## INC-4522: Service Discovery & Private DNS Resolution Failure
+
+### Issue
+Internal service discovery failed when resolving internal hostnames within the VPC. Instances could not resolve private DNS endpoints.
+
+### Root Cause
+The Private DNS Managed Zone was not properly bound to the VPC network (`vpc-networking-lab-8183452c`), preventing internal DNS queries from resolving private domain entries.
+
+### Resolution
+Associated the Private DNS Managed Zone with the target VPC network:
+```bash
+gcloud dns managed-zones update <ZONE_NAME> \
+    --networks=vpc-networking-lab-8183452c
